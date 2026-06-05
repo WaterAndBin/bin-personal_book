@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package api.user.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "bin-personal-book/api/user/v1;v1";
+
+service Greeter {
+  // 登录
+  rpc Login(HelloRequest) returns (CommonReply) {
+    option (google.api.http) = {
+      post : "/login",
+      body : "*"
+    };
+  }
+}
+
+message HelloRequest { string name = 1; }
+
+message CommonReply {
+  string code = 1;
+  string message = 2;
+}

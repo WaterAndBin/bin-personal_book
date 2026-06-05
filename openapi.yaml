@@ -1,0 +1,43 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Greeter API
+    version: 0.0.1
+paths:
+    /login:
+        post:
+            tags:
+                - Greeter
+            description: 登录
+            operationId: Greeter_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.HelloRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.CommonReply'
+components:
+    schemas:
+        api.user.v1.CommonReply:
+            type: object
+            properties:
+                code:
+                    type: string
+                message:
+                    type: string
+        api.user.v1.HelloRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+tags:
+    - name: Greeter
