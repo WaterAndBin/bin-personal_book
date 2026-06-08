@@ -2,38 +2,54 @@ package data
 
 import (
 	"bin-personal-book/internal/conf"
-	"fmt"
+	"context"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
-// ProviderSet is data providers.
 var ProviderSet = wire.NewSet(NewData, NewGreeterRepo)
 
-// Data .
 type Data struct {
-	// TODO wrapped database client
+	db *mongo.Database
 }
 
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
+	// 创建一个10秒的超时控制
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	client, err := mongo.Connect(
 		options.Client().
-			ApplyURI(c.Mongodb.Uri),
+			ApplyURI("mongodb://127.0.0.1:27017"),
 	)
-
-	fmt.Print(client)
 
 	if err != nil {
 		log.NewHelper(logger).Fatal("数据库连接失败")
 		return nil, nil, err
 	}
 
-	cleanup := func() {
-		log.NewHelper(logger).Info("closing the data resources")
+	// 检查连接是否成功
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.NewHelper(logger).Fatal("数据库连接失败")
+		return nil, nil, err
 	}
-	return &Data{}, cleanup, nil
+
+	cleanup := func() {
+		log.NewHelper(logger).Info("断开数据库连接")
+		err := client.Disconnect(ctx)
+		if err != nil {
+			return
+		}
+	}
+
+	db := client.Database(c.Mongodb.Database)
+
+	return &Data{db: db}, cleanup, nil
 }

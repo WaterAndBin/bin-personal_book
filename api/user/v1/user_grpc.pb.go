@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: user/v1/user.proto
+// source: api/user/v1/user.proto
 
 package v1
 
@@ -27,7 +27,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GreeterClient interface {
 	// 登录
-	Login(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*CommonReply, error)
+	Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*CommonReply, error)
 }
 
 type greeterClient struct {
@@ -38,7 +38,7 @@ func NewGreeterClient(cc grpc.ClientConnInterface) GreeterClient {
 	return &greeterClient{cc}
 }
 
-func (c *greeterClient) Login(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*CommonReply, error) {
+func (c *greeterClient) Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*CommonReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CommonReply)
 	err := c.cc.Invoke(ctx, Greeter_Login_FullMethodName, in, out, cOpts...)
@@ -53,7 +53,7 @@ func (c *greeterClient) Login(ctx context.Context, in *HelloRequest, opts ...grp
 // for forward compatibility.
 type GreeterServer interface {
 	// 登录
-	Login(context.Context, *HelloRequest) (*CommonReply, error)
+	Login(context.Context, *LoginParams) (*CommonReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -64,7 +64,7 @@ type GreeterServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGreeterServer struct{}
 
-func (UnimplementedGreeterServer) Login(context.Context, *HelloRequest) (*CommonReply, error) {
+func (UnimplementedGreeterServer) Login(context.Context, *LoginParams) (*CommonReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
@@ -89,7 +89,7 @@ func RegisterGreeterServer(s grpc.ServiceRegistrar, srv GreeterServer) {
 }
 
 func _Greeter_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HelloRequest)
+	in := new(LoginParams)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func _Greeter_Login_Handler(srv interface{}, ctx context.Context, dec func(inter
 		FullMethod: Greeter_Login_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GreeterServer).Login(ctx, req.(*HelloRequest))
+		return srv.(GreeterServer).Login(ctx, req.(*LoginParams))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -119,5 +119,5 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "user/v1/user.proto",
+	Metadata: "api/user/v1/user.proto",
 }

@@ -20,8 +20,8 @@ func NewGreeterService(user *biz.UserUsecase) *GreeterService {
 	}
 }
 
-func (s *GreeterService) Login(ctx context.Context, req *pb.HelloRequest) (*pb.CommonReply, error) {
-	err := s.user.Login(ctx, req.Name)
+func (s *GreeterService) Login(ctx context.Context, req *pb.LoginParams) (*pb.CommonReply, error) {
+	err := s.user.Login(ctx, req)
 
 	fmt.Print(err)
 

@@ -1,15 +1,16 @@
 package biz
 
 import (
+	pb "bin-personal-book/api/user/v1"
 	"context"
-
-	"errors"
+	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
 
 // UserRepo 方法
 type UserRepo interface {
+	GetList(ctx context.Context, params *pb.LoginParams) (*pb.LoginParams, error)
 }
 
 type UserUsecase struct {
@@ -17,16 +18,12 @@ type UserUsecase struct {
 	log  *log.Helper
 }
 
-func NewGreeterUsecase(repo UserRepo, logger log.Logger) *UserUsecase {
+func NewUserUsecase(repo UserRepo, logger log.Logger) *UserUsecase {
 	return &UserUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *UserUsecase) Login(ctx context.Context, name string) error {
-	uc.log.WithContext(ctx).Infof("Login: %v", name)
-
-	if name == "" {
-		return errors.New("用户名不能为空")
-	}
+func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) error {
+	fmt.Println(params)
 
 	return nil
 }

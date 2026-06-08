@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.9.2
 // - protoc             v5.29.3
-// source: user/v1/user.proto
+// source: api/user/v1/user.proto
 
 package v1
 
@@ -23,7 +23,7 @@ const OperationGreeterLogin = "/api.user.v1.Greeter/Login"
 
 type GreeterHTTPServer interface {
 	// Login 登录
-	Login(context.Context, *HelloRequest) (*CommonReply, error)
+	Login(context.Context, *LoginParams) (*CommonReply, error)
 }
 
 func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
@@ -33,7 +33,7 @@ func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 
 func _Greeter_Login0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in HelloRequest
+		var in LoginParams
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -42,7 +42,7 @@ func _Greeter_Login0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) 
 		}
 		http.SetOperation(ctx, OperationGreeterLogin)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Login(ctx, req.(*HelloRequest))
+			return srv.Login(ctx, req.(*LoginParams))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -55,7 +55,7 @@ func _Greeter_Login0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) 
 
 type GreeterHTTPClient interface {
 	// Login 登录
-	Login(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (rsp *CommonReply, err error)
+	Login(ctx context.Context, req *LoginParams, opts ...http.CallOption) (rsp *CommonReply, err error)
 }
 
 type GreeterHTTPClientImpl struct {
@@ -67,7 +67,7 @@ func NewGreeterHTTPClient(client *http.Client) GreeterHTTPClient {
 }
 
 // Login 登录
-func (c *GreeterHTTPClientImpl) Login(ctx context.Context, in *HelloRequest, opts ...http.CallOption) (*CommonReply, error) {
+func (c *GreeterHTTPClientImpl) Login(ctx context.Context, in *LoginParams, opts ...http.CallOption) (*CommonReply, error) {
 	var out CommonReply
 	pattern := "/login"
 	path := binding.EncodeURL(pattern, in, false)
