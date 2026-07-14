@@ -17,12 +17,13 @@ type UserRepo interface {
 }
 
 type UserUsecase struct {
-	repo UserRepo
-	log  *log.Helper
+	confData *conf.Data
+	repo     UserRepo
+	log      *log.Helper
 }
 
 func NewUserUseBiz(confData *conf.Data, repo UserRepo, logger log.Logger) *UserUsecase {
-	return &UserUsecase{repo: repo, log: log.NewHelper(logger)}
+	return &UserUsecase{confData: confData, repo: repo, log: log.NewHelper(logger)}
 }
 
 func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*jwt.Token, error) {
@@ -39,14 +40,13 @@ func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*jwt.
 
 	// 传入指定的签名方法和payload信息,创建Token对象
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"iss": "程序员陈明勇",
-		"sub": "chenmingyong.cn",
-		"aud": "Programmer",
+		"account":   user.Account,
+		"ExpiresAt": uc.confData.Jwt.Expire,
 	})
 
-	// tokenString, err = token.SignedString([]byte())
+	tokenString, err := token.SignedString([]byte(uc.confData.Jwt.Secret))
 
-	fmt.Println(token)
+	fmt.Println(tokenString)
 
 	return token, nil
 }
