@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: api/user/v1/user.proto
+// source: user/v1/user.proto
 
 package v1
 
@@ -27,7 +27,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GreeterClient interface {
 	// 登录
-	Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*CommonReply, error)
+	Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*LoginResult, error)
 }
 
 type greeterClient struct {
@@ -38,9 +38,9 @@ func NewGreeterClient(cc grpc.ClientConnInterface) GreeterClient {
 	return &greeterClient{cc}
 }
 
-func (c *greeterClient) Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*CommonReply, error) {
+func (c *greeterClient) Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*LoginResult, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CommonReply)
+	out := new(LoginResult)
 	err := c.cc.Invoke(ctx, Greeter_Login_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (c *greeterClient) Login(ctx context.Context, in *LoginParams, opts ...grpc
 // for forward compatibility.
 type GreeterServer interface {
 	// 登录
-	Login(context.Context, *LoginParams) (*CommonReply, error)
+	Login(context.Context, *LoginParams) (*LoginResult, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -64,7 +64,7 @@ type GreeterServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGreeterServer struct{}
 
-func (UnimplementedGreeterServer) Login(context.Context, *LoginParams) (*CommonReply, error) {
+func (UnimplementedGreeterServer) Login(context.Context, *LoginParams) (*LoginResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
@@ -119,5 +119,5 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/user/v1/user.proto",
+	Metadata: "user/v1/user.proto",
 }

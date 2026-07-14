@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.9.2
 // - protoc             v5.29.3
-// source: api/user/v1/user.proto
+// source: user/v1/user.proto
 
 package v1
 
@@ -23,7 +23,7 @@ const OperationGreeterLogin = "/api.user.v1.Greeter/Login"
 
 type GreeterHTTPServer interface {
 	// Login 登录
-	Login(context.Context, *LoginParams) (*CommonReply, error)
+	Login(context.Context, *LoginParams) (*LoginResult, error)
 }
 
 func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
@@ -48,14 +48,14 @@ func _Greeter_Login0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) 
 		if err != nil {
 			return err
 		}
-		reply := out.(*CommonReply)
+		reply := out.(*LoginResult)
 		return ctx.Result(200, reply)
 	}
 }
 
 type GreeterHTTPClient interface {
 	// Login 登录
-	Login(ctx context.Context, req *LoginParams, opts ...http.CallOption) (rsp *CommonReply, err error)
+	Login(ctx context.Context, req *LoginParams, opts ...http.CallOption) (rsp *LoginResult, err error)
 }
 
 type GreeterHTTPClientImpl struct {
@@ -67,8 +67,8 @@ func NewGreeterHTTPClient(client *http.Client) GreeterHTTPClient {
 }
 
 // Login 登录
-func (c *GreeterHTTPClientImpl) Login(ctx context.Context, in *LoginParams, opts ...http.CallOption) (*CommonReply, error) {
-	var out CommonReply
+func (c *GreeterHTTPClientImpl) Login(ctx context.Context, in *LoginParams, opts ...http.CallOption) (*LoginResult, error) {
+	var out LoginResult
 	pattern := "/login"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationGreeterLogin))

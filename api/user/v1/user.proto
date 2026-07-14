@@ -8,7 +8,7 @@ option go_package = "bin-personal-book/api/user/v1;v1";
 
 service Greeter {
   // 登录
-  rpc Login(LoginParams) returns (CommonReply) {
+  rpc Login(LoginParams) returns (LoginResult) {
     option (google.api.http) = {
       post : "/login",
       body : "*"
@@ -16,9 +16,15 @@ service Greeter {
   }
 }
 
-message LoginParams { string account = 1; string password = 2; }
+message LoginParams {
+  string account = 1;
+  string password = 2;
+}
 
-message CommonReply {
+message UserInfo { string account = 1; }
+
+message LoginResult {
   string code = 1;
   string message = 2;
+  string token = 3;
 }

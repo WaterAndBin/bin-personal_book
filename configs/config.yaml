@@ -15,4 +15,7 @@ data:
     write_timeout: 0.2s
   mongodb:
     uri: "mongodb://localhost:27017"
-    database: "bin_personal_book"
+    database: "bin-personal-book"
+  jwt:
+    secret: bin-personal-book
+    expire: 7200

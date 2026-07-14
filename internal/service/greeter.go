@@ -3,7 +3,6 @@ package service
 import (
 	"bin-personal-book/internal/biz"
 	"context"
-	"fmt"
 
 	pb "bin-personal-book/api/user/v1"
 )
@@ -20,13 +19,12 @@ func NewGreeterService(user *biz.UserUsecase) *GreeterService {
 	}
 }
 
-func (s *GreeterService) Login(ctx context.Context, req *pb.LoginParams) (*pb.CommonReply, error) {
-	err := s.user.Login(ctx, req)
+func (s *GreeterService) Login(ctx context.Context, req *pb.LoginParams) (*pb.LoginResult, error) {
+	_, err := s.user.Login(ctx, req)
 
-	fmt.Print(err)
-
-	return &pb.CommonReply{
+	return &pb.LoginResult{
 		Code:    "200",
 		Message: "登录成功",
-	}, nil
+		Token:   "123",
+	}, err
 }

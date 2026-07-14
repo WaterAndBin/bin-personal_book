@@ -3,6 +3,7 @@ package data
 import (
 	"bin-personal-book/internal/conf"
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -12,14 +13,14 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewGreeterRepo)
+var ProviderSet = wire.NewSet(NewMonodb)
 
 type Data struct {
 	db *mongo.Database
 }
 
 // NewData .
-func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
+func NewMonodb(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	// 创建一个10秒的超时控制
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -39,6 +40,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	if err != nil {
 		log.NewHelper(logger).Fatal("数据库连接失败")
 		return nil, nil, err
+	} else {
+		fmt.Println("===数据库连接成功===")
 	}
 
 	cleanup := func() {
@@ -48,6 +51,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			return
 		}
 	}
+
+	fmt.Println(c.Mongodb.Database)
 
 	db := client.Database(c.Mongodb.Database)
 
