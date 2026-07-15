@@ -32,7 +32,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 }
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Bootstrap, greeter *service.GreeterService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Bootstrap, greeter *service.MainService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -70,9 +70,10 @@ func NewHTTPServer(c *conf.Bootstrap, greeter *service.GreeterService, logger lo
 
 	srv := http.NewServer(append(opts,
 		http.ResponseEncoder(ResponseEncoder),
-		// http.ErrorEncoder(ErrorEncoder),
+		http.ErrorEncoder(ErrorEncoder),
 	)...)
 
 	user.RegisterGreeterHTTPServer(srv, greeter)
+
 	return srv
 }

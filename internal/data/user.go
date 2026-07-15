@@ -3,9 +3,10 @@ package data
 import (
 	pb "bin-personal-book/api/user/v1"
 	"context"
-	"errors"
+	"fmt"
 
 	"bin-personal-book/internal/biz"
+	"bin-personal-book/internal/core"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -26,7 +27,7 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) GetUserAccount(ctx context.Context, g *pb.LoginParams) (*pb.LoginParams, error) {
+func (r *userRepo) GetUserAccount(ctx context.Context, g *core.GetUserAccountParams) (*pb.LoginParams, error) {
 	user := &pb.LoginParams{}
 
 	err := r.userColl.FindOne(ctx, bson.M{
@@ -34,8 +35,29 @@ func (r *userRepo) GetUserAccount(ctx context.Context, g *pb.LoginParams) (*pb.L
 	}).Decode(user)
 
 	if err != nil {
-		return nil, errors.New("查找不到用户信息")
+		return nil, core.NewError(
+			"暂无该用户",
+		)
 	}
 
 	return user, nil
+}
+
+func (r *userRepo) InsertUserAccount(ctx context.Context, g *pb.RegisterParams) (*struct{}, error) {
+	res, err := r.userColl.InsertOne(ctx, bson.M{
+		"account":  g.Account,
+		"password": g.Password,
+	},
+	)
+
+	fmt.Println("===")
+	fmt.Println(res)
+
+	if err != nil {
+		return nil, core.NewError(
+			"暂无该用户",
+		)
+	}
+
+	return nil, nil
 }
