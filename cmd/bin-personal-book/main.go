@@ -58,6 +58,7 @@ func main() {
 		"trace.id", tracing.TraceID(),
 		"span.id", tracing.SpanID(),
 	)
+
 	c := config.New(
 		config.WithSource(
 			file.NewSource(flagconf),
@@ -70,11 +71,12 @@ func main() {
 	}
 
 	var bc conf.Bootstrap
+
 	if err := c.Scan(&bc); err != nil {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
+	app, cleanup, err := wireApp(&bc, bc.Data, logger)
 	if err != nil {
 		panic(err)
 	}
