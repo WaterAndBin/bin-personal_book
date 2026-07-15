@@ -20,15 +20,19 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationGreeterLogin = "/api.user.v1.Greeter/Login"
+const OperationGreeterRegister = "/api.user.v1.Greeter/Register"
 
 type GreeterHTTPServer interface {
 	// Login 登录
 	Login(context.Context, *LoginParams) (*LoginResult, error)
+	// Register 注册
+	Register(context.Context, *RegisterParams) (*RegisterResult, error)
 }
 
 func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r := s.Route("/")
 	r.POST("/login", _Greeter_Login0_HTTP_Handler(srv))
+	r.POST("/register", _Greeter_Register0_HTTP_Handler(srv))
 }
 
 func _Greeter_Login0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -53,9 +57,33 @@ func _Greeter_Login0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) 
 	}
 }
 
+func _Greeter_Register0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RegisterParams
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterRegister)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Register(ctx, req.(*RegisterParams))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RegisterResult)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GreeterHTTPClient interface {
 	// Login 登录
 	Login(ctx context.Context, req *LoginParams, opts ...http.CallOption) (rsp *LoginResult, err error)
+	// Register 注册
+	Register(ctx context.Context, req *RegisterParams, opts ...http.CallOption) (rsp *RegisterResult, err error)
 }
 
 type GreeterHTTPClientImpl struct {
@@ -72,6 +100,20 @@ func (c *GreeterHTTPClientImpl) Login(ctx context.Context, in *LoginParams, opts
 	pattern := "/login"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationGreeterLogin))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// Register 注册
+func (c *GreeterHTTPClientImpl) Register(ctx context.Context, in *RegisterParams, opts ...http.CallOption) (*RegisterResult, error) {
+	var out RegisterResult
+	pattern := "/register"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterRegister))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

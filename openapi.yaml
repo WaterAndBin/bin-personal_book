@@ -25,6 +25,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.user.v1.LoginResult'
+    /register:
+        post:
+            tags:
+                - Greeter
+            description: 注册
+            operationId: Greeter_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.RegisterParams'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.RegisterResult'
 components:
     schemas:
         api.user.v1.LoginParams:
@@ -37,11 +56,17 @@ components:
         api.user.v1.LoginResult:
             type: object
             properties:
-                code:
-                    type: string
-                message:
-                    type: string
                 token:
                     type: string
+        api.user.v1.RegisterParams:
+            type: object
+            properties:
+                account:
+                    type: string
+                password:
+                    type: string
+        api.user.v1.RegisterResult:
+            type: object
+            properties: {}
 tags:
     - name: Greeter

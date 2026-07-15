@@ -14,6 +14,14 @@ service Greeter {
       body : "*"
     };
   }
+
+  // 注册
+  rpc Register(RegisterParams) returns (RegisterResult) {
+    option (google.api.http) = {
+      post : "/register",
+      body : "*"
+    };
+  }
 }
 
 message LoginParams {
@@ -21,10 +29,11 @@ message LoginParams {
   string password = 2;
 }
 
-message UserInfo { string account = 1; }
-
-message LoginResult {
-  string code = 1;
-  string message = 2;
-  string token = 3;
+message RegisterParams {
+  string account = 1;
+  string password = 2;
 }
+
+message LoginResult { string token = 1; }
+
+message RegisterResult {}

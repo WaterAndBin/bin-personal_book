@@ -23,8 +23,6 @@ func (s *GreeterService) Login(ctx context.Context, req *pb.LoginParams) (*pb.Lo
 	_, err := s.user.Login(ctx, req)
 
 	return &pb.LoginResult{
-		Code:    "200",
-		Message: "登录成功",
-		Token:   "123",
+		Token: "123",
 	}, err
 }
