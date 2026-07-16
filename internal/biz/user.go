@@ -12,7 +12,7 @@ import (
 
 // UserRepo 方法
 type UserRepo interface {
-	GetUserAccount(ctx context.Context, params *core.GetUserAccountParams) (*pb.LoginParams, error)
+	GetUserAccount(ctx context.Context, params *core.GetUserAccountParams) *pb.LoginParams
 	InsertUserAccount(ctx context.Context, params *pb.RegisterParams) (*struct{}, error)
 }
 
@@ -28,11 +28,12 @@ func NewUserUseBiz(confData *conf.Data, repo UserRepo, logger log.Logger) *UserU
 
 func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*pb.LoginResult, error) {
 	// 查找用户是否存在
-	user, err := uc.repo.GetUserAccount(ctx, &core.GetUserAccountParams{
+	user := uc.repo.GetUserAccount(ctx, &core.GetUserAccountParams{
 		Account: params.Account,
 	})
-	if err != nil {
-		return nil, err
+
+	if user == nil {
+		return nil, core.NewError("暂无该用户")
 	}
 
 	// 对比密码是否相同
@@ -49,6 +50,10 @@ func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*pb.L
 	// 转成string类型
 	tokenString, err := token.SignedString([]byte(uc.confData.Jwt.Secret))
 
+	if err != nil {
+		return nil, err
+	}
+
 	return &pb.LoginResult{
 		Token: tokenString,
 	}, nil
@@ -56,12 +61,12 @@ func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*pb.L
 
 func (uc *UserUsecase) Register(ctx context.Context, params *pb.RegisterParams) (*pb.RegisterResult, error) {
 	// 查找用户是否存在
-	_, err := uc.repo.GetUserAccount(ctx, &core.GetUserAccountParams{
+	user := uc.repo.GetUserAccount(ctx, &core.GetUserAccountParams{
 		Account: params.Account,
 	})
 
-	if err == nil {
-		return nil, err
+	if user != nil {
+		return nil, core.NewError("该用户已注册")
 	}
 
 	_, InsertErr := uc.repo.InsertUserAccount(ctx, params)

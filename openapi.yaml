@@ -3,9 +3,27 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
+    title: ""
     version: 0.0.1
 paths:
+    /getBillTagsList:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_GetBillTagsList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.tags.v1.GetBillTagsListParams'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.tags.v1.GetBillTagsListResult'
     /login:
         post:
             tags:
@@ -44,8 +62,48 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.user.v1.RegisterResult'
+    /updateBillTags:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_UpdateBillTags
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.tags.v1.GetBillTagsInfo'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.tags.v1.UpdateBillTagsResult'
 components:
     schemas:
+        api.tags.v1.GetBillTagsInfo:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                icon:
+                    type: string
+        api.tags.v1.GetBillTagsListParams:
+            type: object
+            properties: {}
+        api.tags.v1.GetBillTagsListResult:
+            type: object
+            properties:
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.tags.v1.GetBillTagsInfo'
+        api.tags.v1.UpdateBillTagsResult:
+            type: object
+            properties: {}
         api.user.v1.LoginParams:
             type: object
             properties:
@@ -69,4 +127,5 @@ components:
             type: object
             properties: {}
 tags:
+    - name: Greeter
     - name: Greeter

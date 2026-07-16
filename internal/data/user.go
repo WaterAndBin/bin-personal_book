@@ -3,7 +3,6 @@ package data
 import (
 	pb "bin-personal-book/api/user/v1"
 	"context"
-	"fmt"
 
 	"bin-personal-book/internal/biz"
 	"bin-personal-book/internal/core"
@@ -27,7 +26,7 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) GetUserAccount(ctx context.Context, g *core.GetUserAccountParams) (*pb.LoginParams, error) {
+func (r *userRepo) GetUserAccount(ctx context.Context, g *core.GetUserAccountParams) *pb.LoginParams {
 	user := &pb.LoginParams{}
 
 	err := r.userColl.FindOne(ctx, bson.M{
@@ -35,23 +34,18 @@ func (r *userRepo) GetUserAccount(ctx context.Context, g *core.GetUserAccountPar
 	}).Decode(user)
 
 	if err != nil {
-		return nil, core.NewError(
-			"暂无该用户",
-		)
+		return nil
 	}
 
-	return user, nil
+	return user
 }
 
 func (r *userRepo) InsertUserAccount(ctx context.Context, g *pb.RegisterParams) (*struct{}, error) {
-	res, err := r.userColl.InsertOne(ctx, bson.M{
+	_, err := r.userColl.InsertOne(ctx, bson.M{
 		"account":  g.Account,
 		"password": g.Password,
 	},
 	)
-
-	fmt.Println("===")
-	fmt.Println(res)
 
 	if err != nil {
 		return nil, core.NewError(

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package api.tags.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "bin-personal-book/api/tags/v1;v1";
+
+service Greeter {
+
+  rpc GetBillTagsList(GetBillTagsListParams) returns (GetBillTagsListResult) {
+    option (google.api.http) = {
+      post : "/getBillTagsList",
+      body : "*"
+    };
+  }
+
+  rpc UpdateBillTags(GetBillTagsInfo) returns (UpdateBillTagsResult) {
+    option (google.api.http) = {
+      post : "/updateBillTags",
+      body : "*"
+    };
+  }
+}
+
+message GetBillTagsInfo {
+  int64 id = 1;
+  string name = 2;
+  string icon = 3;
+}
+
+message GetBillTagsListParams {}
+
+message GetBillTagsListResult { repeated GetBillTagsInfo data = 1; }
+
+message UpdateBillTagsResult {}

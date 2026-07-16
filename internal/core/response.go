@@ -14,9 +14,9 @@ type Response struct {
 
 const (
 	// 参数错误
-	ParamError int32 = 401
+	ParamError int32 = 400
 	// Token 已过期
-	TokenExpired int32 = 402
+	TokenExpired int32 = 401
 	// 无权限
 	Forbidden int32 = 403
 	// 系统异常
