@@ -29,16 +29,13 @@ type GreeterHTTPServer interface {
 
 func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r := s.Route("/")
-	r.POST("/getBillTagsList", _Greeter_GetBillTagsList0_HTTP_Handler(srv))
+	r.GET("/getBillTagsList", _Greeter_GetBillTagsList0_HTTP_Handler(srv))
 	r.POST("/updateBillTags", _Greeter_UpdateBillTags0_HTTP_Handler(srv))
 }
 
 func _Greeter_GetBillTagsList0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetBillTagsListParams
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -93,10 +90,10 @@ func NewGreeterHTTPClient(client *http.Client) GreeterHTTPClient {
 func (c *GreeterHTTPClientImpl) GetBillTagsList(ctx context.Context, in *GetBillTagsListParams, opts ...http.CallOption) (*GetBillTagsListResult, error) {
 	var out GetBillTagsListResult
 	pattern := "/getBillTagsList"
-	path := binding.EncodeURL(pattern, in, false)
+	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationGreeterGetBillTagsList))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

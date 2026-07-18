@@ -1,7 +1,9 @@
 package server
 
 import (
+	tags "bin-personal-book/api/tags/v1"
 	user "bin-personal-book/api/user/v1"
+
 	"bin-personal-book/internal/conf"
 	"bin-personal-book/internal/service"
 	"context"
@@ -32,7 +34,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 }
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Bootstrap, greeter *service.MainService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsService *service.TagsService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -73,7 +75,10 @@ func NewHTTPServer(c *conf.Bootstrap, greeter *service.MainService, logger log.L
 		http.ErrorEncoder(ErrorEncoder),
 	)...)
 
-	user.RegisterGreeterHTTPServer(srv, greeter)
+	user.RegisterGreeterHTTPServer(srv, userService)
+	tags.RegisterGreeterHTTPServer(srv, tagsService)
+
+	RegisterFileServiceHTTPServer(srv)
 
 	return srv
 }

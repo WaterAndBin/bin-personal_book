@@ -6,23 +6,23 @@ import (
 	"bin-personal-book/internal/core"
 	"context"
 
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// UserRepo 方法
-type UserRepo interface {
+type UserZip interface {
 	GetUserAccount(ctx context.Context, params *core.GetUserAccountParams) *pb.LoginParams
 	InsertUserAccount(ctx context.Context, params *pb.RegisterParams) (*struct{}, error)
 }
 
 type UserUsecase struct {
 	confData *conf.Data
-	repo     UserRepo
+	repo     UserZip
 	log      *log.Helper
 }
 
-func NewUserUseBiz(confData *conf.Data, repo UserRepo, logger log.Logger) *UserUsecase {
+func NewUserUseBiz(confData *conf.Data, repo UserZip, logger log.Logger) *UserUsecase {
 	return &UserUsecase{confData: confData, repo: repo, log: log.NewHelper(logger)}
 }
 
@@ -33,12 +33,12 @@ func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*pb.L
 	})
 
 	if user == nil {
-		return nil, core.NewError("暂无该用户")
+		return nil, errors.BadRequest("error", "暂无该用户")
 	}
 
 	// 对比密码是否相同
 	if user.Password != params.Password {
-		return nil, core.NewError("密码错误")
+		return nil, errors.BadRequest("error", "密码错误")
 	}
 
 	// 传入指定的签名方法和payload信息,创建Token对象
@@ -66,7 +66,7 @@ func (uc *UserUsecase) Register(ctx context.Context, params *pb.RegisterParams) 
 	})
 
 	if user != nil {
-		return nil, core.NewError("该用户已注册")
+		return nil, errors.BadRequest("error", "该用户已注册")
 	}
 
 	_, InsertErr := uc.repo.InsertUserAccount(ctx, params)

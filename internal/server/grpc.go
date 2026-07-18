@@ -1,7 +1,9 @@
 package server
 
 import (
+	tags "bin-personal-book/api/tags/v1"
 	user "bin-personal-book/api/user/v1"
+
 	"bin-personal-book/internal/conf"
 	"bin-personal-book/internal/service"
 
@@ -11,7 +13,7 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Bootstrap, greeter *service.MainService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Bootstrap, userService *service.UserService, tagsService *service.TagsService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -27,6 +29,9 @@ func NewGRPCServer(c *conf.Bootstrap, greeter *service.MainService, logger log.L
 		opts = append(opts, grpc.Timeout(c.Server.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
-	user.RegisterGreeterServer(srv, greeter)
+
+	user.RegisterGreeterServer(srv, userService)
+	tags.RegisterGreeterServer(srv, tagsService)
+
 	return srv
 }

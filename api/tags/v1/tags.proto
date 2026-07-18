@@ -10,8 +10,7 @@ service Greeter {
 
   rpc GetBillTagsList(GetBillTagsListParams) returns (GetBillTagsListResult) {
     option (google.api.http) = {
-      post : "/getBillTagsList",
-      body : "*"
+      get : "/getBillTagsList",
     };
   }
 
@@ -31,6 +30,9 @@ message GetBillTagsInfo {
 
 message GetBillTagsListParams {}
 
-message GetBillTagsListResult { repeated GetBillTagsInfo data = 1; }
+message GetBillTagsListResult { 
+  repeated GetBillTagsInfo list = 1;
+  int32 length = 2;
+}
 
 message UpdateBillTagsResult {}

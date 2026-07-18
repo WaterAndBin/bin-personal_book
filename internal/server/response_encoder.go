@@ -3,25 +3,35 @@ package server
 
 import (
 	"bin-personal-book/internal/core"
+	"encoding/json"
 	"net/http"
 
 	"github.com/go-kratos/kratos/v2/errors"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
 	httpTransport "github.com/go-kratos/kratos/v2/transport/http"
 )
 
 // 自定义 HTTP 响应编码器
 func ResponseEncoder(w http.ResponseWriter, r *http.Request, v interface{}) error {
-	resp := core.Response{
-		Code:    200,
-		Message: "success",
-		Data:    v,
+	// protobuf 数据先转 json
+	dataJSON, err := protojson.MarshalOptions{
+		EmitUnpopulated: true,
+		UseProtoNames:   true,
+	}.Marshal(v.(proto.Message))
+
+	if err != nil {
+		return err
 	}
 
-	codec, _ := httpTransport.CodecForRequest(r, "Accept")
+	resp := map[string]interface{}{
+		"code":    200,
+		"message": "success",
+		"data":    json.RawMessage(dataJSON),
+	}
 
-	// 将 Response 结构体序列化为字节数组
-	data, err := codec.Marshal(resp)
+	data, err := json.Marshal(resp)
 	if err != nil {
 		return err
 	}
@@ -30,6 +40,7 @@ func ResponseEncoder(w http.ResponseWriter, r *http.Request, v interface{}) erro
 	w.WriteHeader(http.StatusOK)
 
 	_, err = w.Write(data)
+
 	return err
 }
 
@@ -43,6 +54,7 @@ func ErrorEncoder(w http.ResponseWriter, r *http.Request, err error) {
 
 	resp := core.Response{
 		Code:    code,
+		Reason:  e.Reason,
 		Message: e.Message,
 	}
 

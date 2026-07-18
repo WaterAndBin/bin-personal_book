@@ -7,16 +7,10 @@ info:
     version: 0.0.1
 paths:
     /getBillTagsList:
-        post:
+        get:
             tags:
                 - Greeter
             operationId: Greeter_GetBillTagsList
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.tags.v1.GetBillTagsListParams'
-                required: true
             responses:
                 "200":
                     description: OK
@@ -80,6 +74,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.tags.v1.UpdateBillTagsResult'
+    /upload:
+        post:
+            tags:
+                - Greeter
+            description: 登录
+            operationId: Greeter_Upload
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.upload.v1.UploadFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.upload.v1.UploadFileResult'
 components:
     schemas:
         api.tags.v1.GetBillTagsInfo:
@@ -91,19 +104,29 @@ components:
                     type: string
                 icon:
                     type: string
-        api.tags.v1.GetBillTagsListParams:
-            type: object
-            properties: {}
         api.tags.v1.GetBillTagsListResult:
             type: object
             properties:
-                data:
+                list:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.tags.v1.GetBillTagsInfo'
+                length:
+                    type: integer
+                    format: int32
         api.tags.v1.UpdateBillTagsResult:
             type: object
             properties: {}
+        api.upload.v1.UploadFileRequest:
+            type: object
+            properties:
+                filename:
+                    type: string
+        api.upload.v1.UploadFileResult:
+            type: object
+            properties:
+                url:
+                    type: string
         api.user.v1.LoginParams:
             type: object
             properties:
@@ -127,5 +150,6 @@ components:
             type: object
             properties: {}
 tags:
+    - name: Greeter
     - name: Greeter
     - name: Greeter
