@@ -74,25 +74,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.tags.v1.UpdateBillTagsResult'
-    /upload:
-        post:
-            tags:
-                - Greeter
-            description: 登录
-            operationId: Greeter_Upload
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.upload.v1.UploadFileRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.upload.v1.UploadFileResult'
 components:
     schemas:
         api.tags.v1.GetBillTagsInfo:
@@ -117,16 +98,6 @@ components:
         api.tags.v1.UpdateBillTagsResult:
             type: object
             properties: {}
-        api.upload.v1.UploadFileRequest:
-            type: object
-            properties:
-                filename:
-                    type: string
-        api.upload.v1.UploadFileResult:
-            type: object
-            properties:
-                url:
-                    type: string
         api.user.v1.LoginParams:
             type: object
             properties:
@@ -150,6 +121,5 @@ components:
             type: object
             properties: {}
 tags:
-    - name: Greeter
     - name: Greeter
     - name: Greeter

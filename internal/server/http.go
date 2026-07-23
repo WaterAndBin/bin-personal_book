@@ -34,7 +34,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 }
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsService *service.TagsService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsService *service.TagsService, uploadService *service.UploadService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -78,7 +78,9 @@ func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsServ
 	user.RegisterGreeterHTTPServer(srv, userService)
 	tags.RegisterGreeterHTTPServer(srv, tagsService)
 
-	RegisterFileServiceHTTPServer(srv)
+	// 文件上传相关的接口
+	route := srv.Route("/")
+	route.POST("/upload", uploadService.Upload)
 
 	return srv
 }
