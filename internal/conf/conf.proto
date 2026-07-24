@@ -54,4 +54,8 @@ message Data {
   }
 
   Jwt jwt = 11;
+
+  message Upload { string path = 1; }
+
+  Upload upload = 12;
 }

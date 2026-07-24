@@ -19,3 +19,5 @@ data:
   jwt:
     secret: bin-personal-book
     expire: 7200
+  upload:
+    path: ../../files

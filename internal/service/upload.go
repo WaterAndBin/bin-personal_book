@@ -48,7 +48,5 @@ func (s *UploadService) Upload(ctx http.Context) error {
 		return fmt.Errorf("文件大小不能超过 1MB")
 	}
 
-	s.up.SaveFile(file, name)
-
-	return nil
+	return s.up.SaveFile(file, header, name)
 }
