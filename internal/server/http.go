@@ -3,12 +3,11 @@ package server
 import (
 	tags "bin-personal-book/api/tags/v1"
 	user "bin-personal-book/api/user/v1"
+	"context"
+	nethttp "net/http"
 
 	"bin-personal-book/internal/conf"
 	"bin-personal-book/internal/service"
-	"context"
-
-	nethttp "net/http"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
@@ -78,12 +77,7 @@ func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsServ
 
 	user.RegisterGreeterHTTPServer(srv, userService)
 	tags.RegisterGreeterHTTPServer(srv, tagsService)
-
-	// 文件上传相关的接口
-	route := srv.Route("/")
-	route.POST("/upload", JWTHandler(c.Data.Jwt.Secret, uploadService.Upload))
-
-	// 注册 URL 前缀处理器
+	upload.RegisterGreeterHTTPServer(srv, uploadService)
 	srv.HandlePrefix(
 		"/files/",
 		// 删除 URL 前缀

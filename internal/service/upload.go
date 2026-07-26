@@ -2,10 +2,12 @@ package service
 
 import (
 	"bin-personal-book/internal/biz"
+	"context"
 	"fmt"
 
+	pb "bin-personal-book/api/upload/v1"
+
 	"github.com/go-kratos/kratos/v2/errors"
-	"github.com/go-kratos/kratos/v2/transport/http"
 )
 
 type UploadService struct {
@@ -18,7 +20,7 @@ func NewUploadService(up *biz.UploadUsecase) *UploadService {
 	}
 }
 
-func (s *UploadService) Upload(ctx http.Context) error {
+func (s *UploadService) Upload(ctx context.Context, req *pb.UploadParams) error {
 	req := ctx.Request()
 
 	// 限制请求体大小并解析表单
@@ -26,7 +28,11 @@ func (s *UploadService) Upload(ctx http.Context) error {
 		return errors.BadRequest("error", "文件解析失败或过大")
 	}
 
-	if len(req.MultipartForm.File["file"]) != 1 {
+	if len(req.MultipartForm.File["file"]) == 0 {
+		return errors.BadRequest("error", "请上传照片")
+	}
+
+	if len(req.MultipartForm.File["file"]) > 1 {
 		return errors.BadRequest("error", "只能上传一张图片")
 	}
 
@@ -48,5 +54,10 @@ func (s *UploadService) Upload(ctx http.Context) error {
 		return fmt.Errorf("文件大小不能超过 1MB")
 	}
 
-	return s.up.SaveFile(file, header, name)
+	_, saveErr := s.up.SaveFile(file, header, name)
+	if err != nil {
+		return saveErr
+	}
+
+	return nil
 }
