@@ -1,7 +1,8 @@
-package data
+﻿package data
 
 import (
 	tags "bin-personal-book/api/tags/v1"
+	"time"
 
 	"context"
 
@@ -52,16 +53,34 @@ func (r *tagsData) UpdateBillTags(ctx context.Context, params *tags.BillTagsInfo
 		return nil, errors.BadRequest("error", "缺少icon")
 	}
 
-	_, err := r.billTagsColl.InsertOne(ctx, bson.M{
-		"tag_id":   uuid.New().String(),
-		"tag_name": params.TagName,
-		"tag_icon": params.TagIcon,
-	},
-	)
+	if params.TagId != "" {
+		err := r.billTagsColl.UpdateOne(ctx, bson.M{"tag_id": params.TagId}, bson.M{
+			"$set": bson.M{
+				"tag_name":     params.TagName,
+				"tag_icon":     params.TagIcon,
+				"updated_time": time.Now().UTC(),
+			},
+		})
 
-	if err != nil {
-		return nil, errors.BadRequest("error", "创建标签失败")
+		if err != nil {
+			return nil, errors.BadRequest("error", "更新标签失败")
+		}
+
+		return &tags.UpdateBillTagsResult{}, nil
+	} else {
+		_, err := r.billTagsColl.InsertOne(ctx, bson.M{
+			"tag_id":       uuid.New().String(),
+			"tag_name":     params.TagName,
+			"tag_icon":     params.TagIcon,
+			"updated_time": time.Now().UTC(),
+			"create_time":  time.Now().UTC(),
+		},
+		)
+
+		if err != nil {
+			return nil, errors.BadRequest("error", "创建标签失败")
+		}
+
+		return &tags.UpdateBillTagsResult{}, nil
 	}
-
-	return &tags.UpdateBillTagsResult{}, nil
 }

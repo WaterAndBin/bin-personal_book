@@ -3,7 +3,7 @@ package biz
 import (
 	pb "bin-personal-book/api/user/v1"
 	"bin-personal-book/internal/conf"
-	"bin-personal-book/internal/core"
+	"bin-personal-book/internal/model"
 	"context"
 
 	"github.com/go-kratos/kratos/v2/errors"
@@ -12,7 +12,7 @@ import (
 )
 
 type UserZip interface {
-	GetUserAccount(ctx context.Context, params *core.GetUserAccountParams) *pb.LoginParams
+	GetUserAccount(ctx context.Context, params *model.GetUserAccountParams) *pb.LoginParams
 	InsertUserAccount(ctx context.Context, params *pb.RegisterParams) (*struct{}, error)
 }
 
@@ -28,7 +28,7 @@ func NewUserUseBiz(confData *conf.Data, repo UserZip, logger log.Logger) *UserUs
 
 func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*pb.LoginResult, error) {
 	// 查找用户是否存在
-	user := uc.repo.GetUserAccount(ctx, &core.GetUserAccountParams{
+	user := uc.repo.GetUserAccount(ctx, &model.GetUserAccountParams{
 		Account: params.Account,
 	})
 
@@ -61,7 +61,7 @@ func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*pb.L
 
 func (uc *UserUsecase) Register(ctx context.Context, params *pb.RegisterParams) (*pb.RegisterResult, error) {
 	// 查找用户是否存在
-	user := uc.repo.GetUserAccount(ctx, &core.GetUserAccountParams{
+	user := uc.repo.GetUserAccount(ctx, &model.GetUserAccountParams{
 		Account: params.Account,
 	})
 

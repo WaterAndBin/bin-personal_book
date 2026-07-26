@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/qiniu/qmgo"
+	qmgoOptions "github.com/qiniu/qmgo/options"
+	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Data struct {
@@ -23,6 +25,11 @@ func NewMonodb(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	client, err := qmgo.NewClient(
 		ctx,
 		&qmgo.Config{Uri: "mongodb://localhost:27017"},
+		qmgoOptions.ClientOptions{
+			ClientOptions: mongoOptions.Client().SetBSONOptions(&mongoOptions.BSONOptions{
+				UseJSONStructTags: true,
+			}),
+		},
 	)
 
 	if err != nil {

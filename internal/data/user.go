@@ -5,7 +5,7 @@ import (
 	"context"
 
 	"bin-personal-book/internal/biz"
-	"bin-personal-book/internal/core"
+	"bin-personal-book/internal/model"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -27,7 +27,7 @@ func NewUserData(data *Data, logger log.Logger) biz.UserZip {
 	}
 }
 
-func (r *userData) GetUserAccount(ctx context.Context, g *core.GetUserAccountParams) *pb.LoginParams {
+func (r *userData) GetUserAccount(ctx context.Context, g *model.GetUserAccountParams) *pb.LoginParams {
 	user := &pb.LoginParams{}
 
 	err := r.userColl.Find(ctx, bson.M{

@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.tags.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "bin-personal-book/api/tags/v1;v1";
 
@@ -26,6 +27,8 @@ message BillTagsInfo {
   string tag_id = 1;
   string tag_name = 2;
   string tag_icon = 3;
+  string created_time = 4;
+  string updated_time = 5;
 }
 
 message GetBillTagsListParams {}

@@ -85,6 +85,10 @@ components:
                     type: string
                 tagIcon:
                     type: string
+                createdTime:
+                    type: string
+                updatedTime:
+                    type: string
         api.tags.v1.GetBillTagsListResult:
             type: object
             properties:
