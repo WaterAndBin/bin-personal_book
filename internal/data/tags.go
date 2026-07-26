@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"bin-personal-book/internal/biz"
+	"bin-personal-book/internal/core"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -29,12 +30,21 @@ func NewTagsData(data *Data, logger log.Logger) biz.TagsZip {
 }
 
 func (r *tagsData) GetBillTagsList(ctx context.Context, params *tags.GetBillTagsListParams) (*tags.GetBillTagsListResult, error) {
-	list := make([]*tags.BillTagsInfo, 0)
+	rows := make([]core.CoreBillTag, 0)
 
-	err := r.billTagsColl.Find(ctx, bson.M{}).All(&list)
+	err := r.billTagsColl.Find(ctx, bson.M{}).All(&rows)
 
 	if err != nil {
 		return nil, errors.BadRequest("error", err.Error())
+	}
+
+	list := make([]*tags.BillTagsInfo, 0, len(rows))
+	for _, item := range rows {
+		list = append(list, &tags.BillTagsInfo{
+			TagId:   item.TagId,
+			TagName: item.TagName,
+			TagIcon: item.TagIcon,
+		})
 	}
 
 	return &tags.GetBillTagsListResult{
@@ -52,12 +62,11 @@ func (r *tagsData) UpdateBillTags(ctx context.Context, params *tags.BillTagsInfo
 		return nil, errors.BadRequest("error", "缺少icon")
 	}
 
-	_, err := r.billTagsColl.InsertOne(ctx, bson.M{
-		"tag_id":   uuid.New().String(),
-		"tag_name": params.TagName,
-		"tag_icon": params.TagIcon,
-	},
-	)
+	_, err := r.billTagsColl.InsertOne(ctx, core.CoreBillTag{
+		TagId:   uuid.New().String(),
+		TagName: params.TagName,
+		TagIcon: params.TagIcon,
+	})
 
 	if err != nil {
 		return nil, errors.BadRequest("error", "创建标签失败")
