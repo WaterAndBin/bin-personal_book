@@ -3,6 +3,7 @@ package server
 import (
 	tags "bin-personal-book/api/tags/v1"
 	user "bin-personal-book/api/user/v1"
+
 	"context"
 	nethttp "net/http"
 
@@ -73,11 +74,14 @@ func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsServ
 
 	srv := http.NewServer(append(opts,
 		http.ResponseEncoder(ResponseEncoder),
+		http.ErrorEncoder(ErrorEncoder),
 	)...)
 
 	user.RegisterGreeterHTTPServer(srv, userService)
 	tags.RegisterGreeterHTTPServer(srv, tagsService)
-	upload.RegisterGreeterHTTPServer(srv, uploadService)
+
+	service.RegisterFileServiceHTTPServer(srv, uploadService)
+
 	srv.HandlePrefix(
 		"/files/",
 		// 删除 URL 前缀

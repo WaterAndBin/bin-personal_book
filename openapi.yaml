@@ -65,7 +65,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.tags.v1.GetBillTagsInfo'
+                            $ref: '#/components/schemas/api.tags.v1.BillTagsInfo'
                 required: true
             responses:
                 "200":
@@ -76,14 +76,14 @@ paths:
                                 $ref: '#/components/schemas/api.tags.v1.UpdateBillTagsResult'
 components:
     schemas:
-        api.tags.v1.GetBillTagsInfo:
+        api.tags.v1.BillTagsInfo:
             type: object
             properties:
-                id:
+                tagId:
                     type: string
-                name:
+                tagName:
                     type: string
-                icon:
+                tagIcon:
                     type: string
         api.tags.v1.GetBillTagsListResult:
             type: object
@@ -91,7 +91,7 @@ components:
                 list:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.tags.v1.GetBillTagsInfo'
+                        $ref: '#/components/schemas/api.tags.v1.BillTagsInfo'
                 length:
                     type: integer
                     format: int32

@@ -24,7 +24,7 @@ const OperationGreeterUpdateBillTags = "/api.tags.v1.Greeter/UpdateBillTags"
 
 type GreeterHTTPServer interface {
 	GetBillTagsList(context.Context, *GetBillTagsListParams) (*GetBillTagsListResult, error)
-	UpdateBillTags(context.Context, *GetBillTagsInfo) (*UpdateBillTagsResult, error)
+	UpdateBillTags(context.Context, *BillTagsInfo) (*UpdateBillTagsResult, error)
 }
 
 func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
@@ -54,7 +54,7 @@ func _Greeter_GetBillTagsList0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http
 
 func _Greeter_UpdateBillTags0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetBillTagsInfo
+		var in BillTagsInfo
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func _Greeter_UpdateBillTags0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.
 		}
 		http.SetOperation(ctx, OperationGreeterUpdateBillTags)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateBillTags(ctx, req.(*GetBillTagsInfo))
+			return srv.UpdateBillTags(ctx, req.(*BillTagsInfo))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -76,7 +76,7 @@ func _Greeter_UpdateBillTags0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.
 
 type GreeterHTTPClient interface {
 	GetBillTagsList(ctx context.Context, req *GetBillTagsListParams, opts ...http.CallOption) (rsp *GetBillTagsListResult, err error)
-	UpdateBillTags(ctx context.Context, req *GetBillTagsInfo, opts ...http.CallOption) (rsp *UpdateBillTagsResult, err error)
+	UpdateBillTags(ctx context.Context, req *BillTagsInfo, opts ...http.CallOption) (rsp *UpdateBillTagsResult, err error)
 }
 
 type GreeterHTTPClientImpl struct {
@@ -100,7 +100,7 @@ func (c *GreeterHTTPClientImpl) GetBillTagsList(ctx context.Context, in *GetBill
 	return &out, nil
 }
 
-func (c *GreeterHTTPClientImpl) UpdateBillTags(ctx context.Context, in *GetBillTagsInfo, opts ...http.CallOption) (*UpdateBillTagsResult, error) {
+func (c *GreeterHTTPClientImpl) UpdateBillTags(ctx context.Context, in *BillTagsInfo, opts ...http.CallOption) (*UpdateBillTagsResult, error) {
 	var out UpdateBillTagsResult
 	pattern := "/updateBillTags"
 	path := binding.EncodeURL(pattern, in, false)

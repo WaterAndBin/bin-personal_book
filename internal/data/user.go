@@ -9,14 +9,14 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/qiniu/qmgo"
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type userData struct {
 	data     *Data
 	log      *log.Helper
-	userColl *mongo.Collection
+	userColl *qmgo.Collection
 }
 
 func NewUserData(data *Data, logger log.Logger) biz.UserZip {
@@ -30,9 +30,9 @@ func NewUserData(data *Data, logger log.Logger) biz.UserZip {
 func (r *userData) GetUserAccount(ctx context.Context, g *core.GetUserAccountParams) *pb.LoginParams {
 	user := &pb.LoginParams{}
 
-	err := r.userColl.FindOne(ctx, bson.M{
+	err := r.userColl.Find(ctx, bson.M{
 		"account": g.Account,
-	}).Decode(user)
+	}).One(user)
 
 	if err != nil {
 		return nil

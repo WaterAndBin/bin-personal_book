@@ -2,13 +2,17 @@ package service
 
 import (
 	"bin-personal-book/internal/biz"
-	"context"
 	"fmt"
 
-	pb "bin-personal-book/api/upload/v1"
-
 	"github.com/go-kratos/kratos/v2/errors"
+	"github.com/go-kratos/kratos/v2/transport/http"
 )
+
+func RegisterFileServiceHTTPServer(srv *http.Server, uploadService *UploadService) {
+	// 文件上传相关的接口
+	route := srv.Route("/")
+	route.POST("/upload", uploadService.Upload)
+}
 
 type UploadService struct {
 	up *biz.UploadUsecase
@@ -20,7 +24,7 @@ func NewUploadService(up *biz.UploadUsecase) *UploadService {
 	}
 }
 
-func (s *UploadService) Upload(ctx context.Context, req *pb.UploadParams) error {
+func (s *UploadService) Upload(ctx http.Context) error {
 	req := ctx.Request()
 
 	// 限制请求体大小并解析表单
@@ -54,10 +58,14 @@ func (s *UploadService) Upload(ctx context.Context, req *pb.UploadParams) error 
 		return fmt.Errorf("文件大小不能超过 1MB")
 	}
 
-	_, saveErr := s.up.SaveFile(file, header, name)
-	if err != nil {
+	url, saveErr := s.up.SaveFile(file, header, name)
+	if saveErr != nil {
 		return saveErr
 	}
 
-	return nil
+	return ctx.JSON(200, map[string]interface{}{
+		"code":    200,
+		"message": "success",
+		"data":    map[string]*string{"url": url},
+	})
 }

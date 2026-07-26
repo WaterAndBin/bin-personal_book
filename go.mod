@@ -14,7 +14,16 @@ require (
 	google.golang.org/protobuf v1.34.1
 )
 
-require github.com/felixge/httpsnoop v1.0.3 // indirect
+require (
+	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/go-playground/locales v0.13.0 // indirect
+	github.com/go-playground/universal-translator v0.17.0 // indirect
+	github.com/go-playground/validator/v10 v10.4.1 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
+	github.com/leodido/go-urn v1.2.0 // indirect
+	github.com/montanaflynn/stats v0.7.1 // indirect
+	github.com/qiniu/qmgo v1.1.10 // indirect
+)
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
@@ -33,6 +42,7 @@ require (
 	github.com/xdg-go/scram v1.2.0 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
+	go.mongodb.org/mongo-driver v1.17.9
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect

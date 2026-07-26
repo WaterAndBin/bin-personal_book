@@ -45,6 +45,32 @@ func ResponseEncoder(w http.ResponseWriter, r *http.Request, v interface{}) erro
 	return err
 }
 
+func ErrorEncoder(
+	w http.ResponseWriter,
+	r *http.Request,
+	err error,
+) {
+	se := errors.FromError(err)
+
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	w.WriteHeader(
+		int(se.Code),
+	)
+
+	json.NewEncoder(w).Encode(
+		map[string]interface{}{
+			"code":    se.Code,
+			"reason":  se.Reason,
+			"message": se.Message,
+		},
+	)
+
+}
+
 // 手动校验jwt是否过期
 func JWTHandler(secret string, next http.HandlerFunc) http.HandlerFunc {
 	return func(ctx http.Context) error {

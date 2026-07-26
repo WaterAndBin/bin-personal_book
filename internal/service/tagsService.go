@@ -22,3 +22,7 @@ func NewTagsService(tag *biz.TagsUsecase) *TagsService {
 func (s *TagsService) GetBillTagsList(ctx context.Context, req *pb.GetBillTagsListParams) (*pb.GetBillTagsListResult, error) {
 	return s.tags.GetBillTagsList(ctx, req)
 }
+
+func (s *TagsService) UpdateBillTags(ctx context.Context, req *pb.BillTagsInfo) (*pb.UpdateBillTagsResult, error) {
+	return s.tags.UpdateBillTags(ctx, req)
+}

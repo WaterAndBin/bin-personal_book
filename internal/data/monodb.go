@@ -7,13 +7,11 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
-	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
+	"github.com/qiniu/qmgo"
 )
 
 type Data struct {
-	db *mongo.Database
+	db *qmgo.Database
 }
 
 // NewData .
@@ -22,9 +20,9 @@ func NewMonodb(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(
-		options.Client().
-			ApplyURI("mongodb://127.0.0.1:27017"),
+	client, err := qmgo.NewClient(
+		ctx,
+		&qmgo.Config{Uri: "mongodb://localhost:27017"},
 	)
 
 	if err != nil {
@@ -32,18 +30,9 @@ func NewMonodb(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		return nil, nil, err
 	}
 
-	// 检查连接是否成功
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.NewHelper(logger).Fatal("数据库连接失败")
-		return nil, nil, err
-	} else {
-		fmt.Println("===数据库连接成功===")
-	}
-
 	cleanup := func() {
 		log.NewHelper(logger).Info("断开数据库连接")
-		err := client.Disconnect(ctx)
+		err := client.Close(ctx)
 		if err != nil {
 			return
 		}

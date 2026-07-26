@@ -9,14 +9,15 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/uuid"
+	"github.com/qiniu/qmgo"
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type tagsData struct {
 	data         *Data
 	log          *log.Helper
-	billTagsColl *mongo.Collection
+	billTagsColl *qmgo.Collection
 }
 
 func NewTagsData(data *Data, logger log.Logger) biz.TagsZip {
@@ -28,16 +29,10 @@ func NewTagsData(data *Data, logger log.Logger) biz.TagsZip {
 }
 
 func (r *tagsData) GetBillTagsList(ctx context.Context, params *tags.GetBillTagsListParams) (*tags.GetBillTagsListResult, error) {
-	cursor, err := r.billTagsColl.Find(ctx, bson.M{})
+	list := make([]*tags.BillTagsInfo, 0)
 
-	if err != nil {
-		return nil, errors.BadRequest("error", err.Error())
-	}
+	err := r.billTagsColl.Find(ctx, bson.M{}).All(&list)
 
-	list := make([]*tags.GetBillTagsInfo, 0)
-
-	// 把 Cursor（查询结果游标）里面的所有数据，一次性读取出来，并转换成 Go 的切片。
-	err = cursor.All(ctx, &list)
 	if err != nil {
 		return nil, errors.BadRequest("error", err.Error())
 	}
@@ -46,4 +41,27 @@ func (r *tagsData) GetBillTagsList(ctx context.Context, params *tags.GetBillTags
 		List:   list,
 		Length: int32(len(list)),
 	}, nil
+}
+
+func (r *tagsData) UpdateBillTags(ctx context.Context, params *tags.BillTagsInfo) (*tags.UpdateBillTagsResult, error) {
+	if params.TagName == "" {
+		return nil, errors.BadRequest("error", "缺少name")
+	}
+
+	if params.TagIcon == "" {
+		return nil, errors.BadRequest("error", "缺少icon")
+	}
+
+	_, err := r.billTagsColl.InsertOne(ctx, bson.M{
+		"tag_id":   uuid.New().String(),
+		"tag_name": params.TagName,
+		"tag_icon": params.TagIcon,
+	},
+	)
+
+	if err != nil {
+		return nil, errors.BadRequest("error", "创建标签失败")
+	}
+
+	return &tags.UpdateBillTagsResult{}, nil
 }
