@@ -15,6 +15,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/selector"
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	jwtV5 "github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/handlers"
@@ -39,8 +40,10 @@ func NewWhiteListMatcher() selector.MatchFunc {
 func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsService *service.TagsService, uploadService *service.UploadService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
+			// 防止 panic 导致服务挂掉，其实就跟node差不多，就防止某一个地方报错阻塞其他接口请求
 			recovery.Recovery(),
-
+			// 参数校验
+			validate.Validator(),
 			// 日志
 			logging.Server(logger),
 
@@ -80,7 +83,7 @@ func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsServ
 	user.RegisterGreeterHTTPServer(srv, userService)
 	tags.RegisterGreeterHTTPServer(srv, tagsService)
 
-	service.RegisterFileServiceHTTPServer(srv, uploadService)
+	uploadService.RegisterFileServiceHTTPServer(srv)
 
 	srv.HandlePrefix(
 		"/files/",

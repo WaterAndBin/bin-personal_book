@@ -16,11 +16,22 @@ import (
 
 // 自定义 HTTP 响应编码器
 func ResponseEncoder(w http.ResponseWriter, r *http.Request, v interface{}) error {
-	// protobuf 数据先转 json
-	dataJSON, err := protojson.MarshalOptions{
-		EmitUnpopulated: true,
-		UseProtoNames:   true,
-	}.Marshal(v.(proto.Message))
+	var dataJSON []byte
+	var err error
+
+	switch data := v.(type) {
+
+	// 兼容多种上传回调
+	case proto.Message:
+		// protobuf 类型
+		dataJSON, err = protojson.MarshalOptions{
+			EmitUnpopulated: true,
+			UseProtoNames:   true,
+		}.Marshal(data)
+	default:
+		// 普通 struct / map / string
+		dataJSON, err = json.Marshal(data)
+	}
 
 	if err != nil {
 		return err

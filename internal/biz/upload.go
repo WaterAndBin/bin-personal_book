@@ -1,55 +1,70 @@
 package biz
 
 import (
+	upload "bin-personal-book/api/upload/v1"
 	"bin-personal-book/internal/conf"
-	"io"
+	"fmt"
 	"mime/multipart"
-	"os"
-	"path"
-	"path/filepath"
 
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/uuid"
+	"github.com/go-kratos/kratos/v2/transport/http"
 )
+
+type UploadZip interface {
+	SaveFile(file multipart.File, header *multipart.FileHeader, name string) (*string, error)
+}
 
 type UploadUsecase struct {
 	confData *conf.Data
+	repo     UploadZip
 	log      *log.Helper
 }
 
-func NewUploadBiz(confData *conf.Data, logger log.Logger) *UploadUsecase {
-	return &UploadUsecase{confData: confData, log: log.NewHelper(logger)}
+func NewUploadBiz(confData *conf.Data, repo UploadZip, logger log.Logger) *UploadUsecase {
+	return &UploadUsecase{confData: confData, repo: repo, log: log.NewHelper(logger)}
 }
 
-// 保存到本地
-func (up *UploadUsecase) SaveFile(file multipart.File, header *multipart.FileHeader, name string) (*string, error) {
-	dir := filepath.Join(up.confData.Upload.Path, name)
+func (up *UploadUsecase) Upload(ctx http.Context) (*upload.UploadResult, error) {
+	request := ctx.Request()
 
-	// 创建文件夹
-	err := os.MkdirAll(dir, os.ModePerm)
+	// 限制请求体大小并解析表单
+	if err := request.ParseMultipartForm(1 << 20); err != nil {
+		return nil, errors.BadRequest("error", "文件解析失败或过大")
+	}
+
+	if len(request.MultipartForm.File["file"]) == 0 {
+		return nil, errors.BadRequest("error", "请上传照片")
+	}
+
+	if len(request.MultipartForm.File["file"]) > 1 {
+		return nil, errors.BadRequest("error", "只能上传一张图片")
+	}
+
+	name := request.FormValue("name")
+
+	if name == "" {
+		return nil, errors.BadRequest("error", "缺少name")
+	}
+
+	// 拿到文件
+	file, header, err := request.FormFile("file")
 	if err != nil {
 		return nil, err
 	}
+	// 关闭文件缓存
+	defer file.Close()
 
-	// 获取文件后缀
-	extension := path.Ext(header.Filename)
-	// 生成唯一id的文件名
-	newFilename := uuid.New().String() + extension
-
-	dstPath := filepath.Join(dir, newFilename)
-
-	// 创建文件
-	dst, err := os.Create(dstPath)
-	if err != nil {
-		return nil, err
-	}
-	defer dst.Close()
-
-	// 将上传的文件流写入到目标文件中
-	_, err = io.Copy(dst, file)
-	if err != nil {
-		return nil, err
+	if header.Size > 1<<20 {
+		return nil, fmt.Errorf("文件大小不能超过 1MB")
 	}
 
-	return &newFilename, nil
+	url, saveErr := up.repo.SaveFile(file, header, name)
+	if saveErr != nil {
+		return nil, saveErr
+	}
+
+	return &upload.UploadResult{
+		URL: *url,
+	}, nil
 }

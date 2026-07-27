@@ -2,16 +2,15 @@ package service
 
 import (
 	"bin-personal-book/internal/biz"
-	"fmt"
+	"context"
 
-	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/transport/http"
 )
 
-func RegisterFileServiceHTTPServer(srv *http.Server, uploadService *UploadService) {
+func (s *UploadService) RegisterFileServiceHTTPServer(srv *http.Server) {
 	// 文件上传相关的接口
 	route := srv.Route("/")
-	route.POST("/upload", uploadService.Upload)
+	route.POST("/upload", s.Upload)
 }
 
 type UploadService struct {
@@ -24,48 +23,9 @@ func NewUploadService(up *biz.UploadUsecase) *UploadService {
 	}
 }
 
-func (s *UploadService) Upload(ctx http.Context) error {
-	req := ctx.Request()
-
-	// 限制请求体大小并解析表单
-	if err := req.ParseMultipartForm(1 << 20); err != nil {
-		return errors.BadRequest("error", "文件解析失败或过大")
-	}
-
-	if len(req.MultipartForm.File["file"]) == 0 {
-		return errors.BadRequest("error", "请上传照片")
-	}
-
-	if len(req.MultipartForm.File["file"]) > 1 {
-		return errors.BadRequest("error", "只能上传一张图片")
-	}
-
-	name := req.FormValue("name")
-
-	if name == "" {
-		return errors.BadRequest("error", "缺少name")
-	}
-
-	// 拿到文件
-	file, header, err := req.FormFile("file")
-	if err != nil {
-		return err
-	}
-	// 关闭文件缓存
-	defer file.Close()
-
-	if header.Size > 1<<20 {
-		return fmt.Errorf("文件大小不能超过 1MB")
-	}
-
-	url, saveErr := s.up.SaveFile(file, header, name)
-	if saveErr != nil {
-		return saveErr
-	}
-
-	return ctx.JSON(200, map[string]interface{}{
-		"code":    200,
-		"message": "success",
-		"data":    map[string]*string{"url": url},
+func (s *UploadService) Upload(httpCtx http.Context) error {
+	h := httpCtx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		return s.up.Upload(httpCtx)
 	})
+	return httpCtx.Returns(h(httpCtx, nil))
 }
