@@ -12,6 +12,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/uuid"
 	"github.com/qiniu/qmgo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
@@ -44,7 +45,7 @@ func (r *tagsData) GetBillTagsList(ctx context.Context, params *tags.GetBillTags
 	}, nil
 }
 
-func (r *tagsData) UpdateBillTags(ctx context.Context, params *tags.BillTagsInfo) (*tags.UpdateBillTagsResult, error) {
+func (r *tagsData) UpdateBillTags(ctx context.Context, params *tags.UpdateBillTagsParams) (*tags.UpdateBillTagsResult, error) {
 	if params.TagName == "" {
 		return nil, errors.BadRequest("error", "缺少name")
 	}
@@ -54,7 +55,8 @@ func (r *tagsData) UpdateBillTags(ctx context.Context, params *tags.BillTagsInfo
 	}
 
 	if params.TagId != "" {
-		err := r.billTagsColl.UpdateOne(ctx, bson.M{"tag_id": params.TagId}, bson.M{
+		objectID, _ := primitive.ObjectIDFromHex(params.TagId)
+		err := r.billTagsColl.UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{
 			"$set": bson.M{
 				"tag_name":     params.TagName,
 				"tag_icon":     params.TagIcon,
@@ -73,7 +75,7 @@ func (r *tagsData) UpdateBillTags(ctx context.Context, params *tags.BillTagsInfo
 			"tag_name":     params.TagName,
 			"tag_icon":     params.TagIcon,
 			"updated_time": time.Now().UTC(),
-			"create_time":  time.Now().UTC(),
+			"created_time": time.Now().UTC(),
 		},
 		)
 

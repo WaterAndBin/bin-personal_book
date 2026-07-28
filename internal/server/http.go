@@ -83,6 +83,7 @@ func NewHTTPServer(c *conf.Bootstrap, userService *service.UserService, tagsServ
 	user.RegisterGreeterHTTPServer(srv, userService)
 	tags.RegisterGreeterHTTPServer(srv, tagsService)
 
+	tagsService.RegisterTagsServiceHTTPServer(srv)
 	uploadService.RegisterFileServiceHTTPServer(srv)
 
 	srv.HandlePrefix(

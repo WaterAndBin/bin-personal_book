@@ -10,7 +10,7 @@ import (
 
 type TagsZip interface {
 	GetBillTagsList(ctx context.Context, params *tags.GetBillTagsListParams) (*tags.GetBillTagsListResult, error)
-	UpdateBillTags(ctx context.Context, params *tags.BillTagsInfo) (*tags.UpdateBillTagsResult, error)
+	UpdateBillTags(ctx context.Context, params *tags.UpdateBillTagsParams) (*tags.UpdateBillTagsResult, error)
 }
 
 type TagsUsecase struct {
@@ -27,6 +27,6 @@ func (uc *TagsUsecase) GetBillTagsList(ctx context.Context, params *tags.GetBill
 	return uc.repo.GetBillTagsList(ctx, params)
 }
 
-func (uc *TagsUsecase) UpdateBillTags(ctx context.Context, params *tags.BillTagsInfo) (*tags.UpdateBillTagsResult, error) {
+func (uc *TagsUsecase) UpdateBillTags(ctx context.Context, params *tags.UpdateBillTagsParams) (*tags.UpdateBillTagsResult, error) {
 	return uc.repo.UpdateBillTags(ctx, params)
 }

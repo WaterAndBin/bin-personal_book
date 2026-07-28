@@ -3,19 +3,11 @@ syntax = "proto3";
 package api.tags.v1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 
 option go_package = "bin-personal-book/api/tags/v1;v1";
 
 service Greeter {
-
-  rpc GetBillTagsList(GetBillTagsListParams) returns (GetBillTagsListResult) {
-    option (google.api.http) = {
-      get : "/getBillTagsList",
-    };
-  }
-
-  rpc UpdateBillTags(BillTagsInfo) returns (UpdateBillTagsResult) {
+  rpc UpdateBillTags(UpdateBillTagsParams) returns (UpdateBillTagsResult) {
     option (google.api.http) = {
       post : "/updateBillTags",
       body : "*"
@@ -23,19 +15,10 @@ service Greeter {
   }
 }
 
-message BillTagsInfo {
+message UpdateBillTagsParams {
   string tag_id = 1;
   string tag_name = 2;
   string tag_icon = 3;
-  string created_time = 4;
-  string updated_time = 5;
-}
-
-message GetBillTagsListParams {}
-
-message GetBillTagsListResult { 
-  repeated BillTagsInfo list = 1;
-  int32 length = 2;
 }
 
 message UpdateBillTagsResult {}
