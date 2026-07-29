@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Greeter_Login_FullMethodName    = "/api.user.v1.Greeter/Login"
 	Greeter_Register_FullMethodName = "/api.user.v1.Greeter/Register"
+	Greeter_SendCode_FullMethodName = "/api.user.v1.Greeter/SendCode"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -31,6 +32,8 @@ type GreeterClient interface {
 	Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*LoginResult, error)
 	// 注册
 	Register(ctx context.Context, in *RegisterParams, opts ...grpc.CallOption) (*RegisterResult, error)
+	// 注册
+	SendCode(ctx context.Context, in *SendCodeParams, opts ...grpc.CallOption) (*SendCodeResult, error)
 }
 
 type greeterClient struct {
@@ -61,6 +64,16 @@ func (c *greeterClient) Register(ctx context.Context, in *RegisterParams, opts .
 	return out, nil
 }
 
+func (c *greeterClient) SendCode(ctx context.Context, in *SendCodeParams, opts ...grpc.CallOption) (*SendCodeResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendCodeResult)
+	err := c.cc.Invoke(ctx, Greeter_SendCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -69,6 +82,8 @@ type GreeterServer interface {
 	Login(context.Context, *LoginParams) (*LoginResult, error)
 	// 注册
 	Register(context.Context, *RegisterParams) (*RegisterResult, error)
+	// 注册
+	SendCode(context.Context, *SendCodeParams) (*SendCodeResult, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -84,6 +99,9 @@ func (UnimplementedGreeterServer) Login(context.Context, *LoginParams) (*LoginRe
 }
 func (UnimplementedGreeterServer) Register(context.Context, *RegisterParams) (*RegisterResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedGreeterServer) SendCode(context.Context, *SendCodeParams) (*SendCodeResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendCode not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -142,6 +160,24 @@ func _Greeter_Register_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_SendCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendCodeParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).SendCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_SendCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).SendCode(ctx, req.(*SendCodeParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,6 +192,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Register",
 			Handler:    _Greeter_Register_Handler,
+		},
+		{
+			MethodName: "SendCode",
+			Handler:    _Greeter_SendCode_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

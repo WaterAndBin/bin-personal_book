@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package api.content.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "bin-personal-book/api/content/v1;v1";
+
+service Greeter {}

@@ -13,21 +13,21 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-type userData struct {
-	data     *Data
+type UserData struct {
+	data     *MongoData
 	log      *log.Helper
 	userColl *qmgo.Collection
 }
 
-func NewUserData(data *Data, logger log.Logger) biz.UserZip {
-	return &userData{
+func NewUserData(data *MongoData, logger log.Logger) biz.UserZip {
+	return &UserData{
 		data:     data,
 		log:      log.NewHelper(logger),
 		userColl: data.db.Collection("user"),
 	}
 }
 
-func (r *userData) GetUserAccount(ctx context.Context, g *model.GetUserAccountParams) *pb.LoginParams {
+func (r *UserData) GetUserAccount(ctx context.Context, g *model.GetUserAccountParams) *pb.LoginParams {
 	user := &pb.LoginParams{}
 
 	err := r.userColl.Find(ctx, bson.M{
@@ -41,7 +41,7 @@ func (r *userData) GetUserAccount(ctx context.Context, g *model.GetUserAccountPa
 	return user
 }
 
-func (r *userData) InsertUserAccount(ctx context.Context, g *pb.RegisterParams) (*struct{}, error) {
+func (r *UserData) InsertUserAccount(ctx context.Context, g *pb.RegisterParams) (*struct{}, error) {
 	_, err := r.userColl.InsertOne(ctx, bson.M{
 		"account":  g.Account,
 		"password": g.Password,

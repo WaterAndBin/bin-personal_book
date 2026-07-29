@@ -16,21 +16,21 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-type tagsData struct {
-	data         *Data
+type TagsData struct {
+	data         *MongoData
 	log          *log.Helper
 	billTagsColl *qmgo.Collection
 }
 
-func NewTagsData(data *Data, logger log.Logger) biz.TagsZip {
-	return &tagsData{
+func NewTagsData(data *MongoData, logger log.Logger) biz.TagsZip {
+	return &TagsData{
 		data:         data,
 		log:          log.NewHelper(logger),
 		billTagsColl: data.db.Collection("bill_tags"),
 	}
 }
 
-func (r *tagsData) GetBillTagsList(ctx context.Context, params *tags.GetBillTagsListParams) (*tags.GetBillTagsListResult, error) {
+func (r *TagsData) GetBillTagsList(ctx context.Context, params *tags.GetBillTagsListParams) (*tags.GetBillTagsListResult, error) {
 	list := make([]*tags.BillTagsInfo, 0)
 
 	err := r.billTagsColl.Find(ctx, bson.M{}).All(&list)
@@ -45,7 +45,7 @@ func (r *tagsData) GetBillTagsList(ctx context.Context, params *tags.GetBillTags
 	}, nil
 }
 
-func (r *tagsData) UpdateBillTags(ctx context.Context, params *tags.UpdateBillTagsParams) (*tags.UpdateBillTagsResult, error) {
+func (r *TagsData) UpdateBillTags(ctx context.Context, params *tags.UpdateBillTagsParams) (*tags.UpdateBillTagsResult, error) {
 	if params.TagName == "" {
 		return nil, errors.BadRequest("error", "缺少name")
 	}

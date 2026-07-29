@@ -44,6 +44,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.user.v1.RegisterResult'
+    /sendCode:
+        post:
+            tags:
+                - Greeter
+            description: 注册
+            operationId: Greeter_SendCode
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.SendCodeParams'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.SendCodeResult'
     /updateBillTags:
         post:
             tags:
@@ -95,9 +114,23 @@ components:
                     type: string
                 password:
                     type: string
+                email:
+                    type: string
+                code:
+                    type: string
         api.user.v1.RegisterResult:
             type: object
             properties: {}
+        api.user.v1.SendCodeParams:
+            type: object
+            properties:
+                email:
+                    type: string
+        api.user.v1.SendCodeResult:
+            type: object
+            properties:
+                code:
+                    type: string
 tags:
     - name: Greeter
     - name: Greeter

@@ -4,7 +4,10 @@ import (
 	pb "bin-personal-book/api/user/v1"
 	"bin-personal-book/internal/conf"
 	"bin-personal-book/internal/model"
+	"bin-personal-book/internal/pkg/email"
+	"bin-personal-book/internal/utils"
 	"context"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -19,11 +22,12 @@ type UserZip interface {
 type UserUsecase struct {
 	confData *conf.Data
 	repo     UserZip
+	redis    *RedisUsecase
 	log      *log.Helper
 }
 
-func NewUserUseBiz(confData *conf.Data, repo UserZip, logger log.Logger) *UserUsecase {
-	return &UserUsecase{confData: confData, repo: repo, log: log.NewHelper(logger)}
+func NewUserUseBiz(confData *conf.Data, repo UserZip, logger log.Logger, redis *RedisUsecase) *UserUsecase {
+	return &UserUsecase{confData: confData, repo: repo, log: log.NewHelper(logger), redis: redis}
 }
 
 func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*pb.LoginResult, error) {
@@ -60,6 +64,19 @@ func (uc *UserUsecase) Login(ctx context.Context, params *pb.LoginParams) (*pb.L
 }
 
 func (uc *UserUsecase) Register(ctx context.Context, params *pb.RegisterParams) (*pb.RegisterResult, error) {
+	if params.Account == "" {
+		return nil, errors.BadRequest("error", "请输入账号")
+	}
+	if params.Password == "" {
+		return nil, errors.BadRequest("error", "请输入密码")
+	}
+	if params.Email == "" {
+		return nil, errors.BadRequest("error", "请输入邮箱 ")
+	}
+	if params.Code == "" {
+		return nil, errors.BadRequest("error", "请输入验证码 ")
+	}
+
 	// 查找用户是否存在
 	user := uc.repo.GetUserAccount(ctx, &model.GetUserAccountParams{
 		Account: params.Account,
@@ -72,4 +89,24 @@ func (uc *UserUsecase) Register(ctx context.Context, params *pb.RegisterParams) 
 	_, InsertErr := uc.repo.InsertUserAccount(ctx, params)
 
 	return &pb.RegisterResult{}, InsertErr
+}
+
+func (uc *UserUsecase) SendCode(ctx context.Context, params *pb.SendCodeParams) (*pb.SendCodeResult, error) {
+	code, err := utils.GenerateCode()
+
+	if err != nil {
+		return nil, errors.BadRequest("error", "生成验证码失败")
+	}
+
+	sendErr := email.SendCode(params.Email, code)
+
+	if sendErr != nil {
+		return nil, errors.BadRequest("error", "发送验证码失败")
+	}
+
+	uc.redis.Set(ctx, "13123", "123123", 5*time.Minute)
+
+	return &pb.SendCodeResult{
+		Code: code,
+	}, nil
 }

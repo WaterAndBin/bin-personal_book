@@ -5,4 +5,4 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewMonodb, NewUserData, NewTagsData, NewUploadData)
+var ProviderSet = wire.NewSet(NewMonodbClient, NewRedisClient, NewRedisData, NewUserData, NewTagsData, NewUploadData)

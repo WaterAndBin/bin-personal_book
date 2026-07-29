@@ -3,7 +3,6 @@ package data
 import (
 	"bin-personal-book/internal/conf"
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -12,12 +11,12 @@ import (
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Data struct {
+type MongoData struct {
 	db *qmgo.Database
 }
 
 // NewData .
-func NewMonodb(c *conf.Data, logger log.Logger) (*Data, func(), error) {
+func NewMonodbClient(c *conf.Data, logger log.Logger) (*MongoData, func(), error) {
 	// 创建一个10秒的超时控制
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -45,9 +44,9 @@ func NewMonodb(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		}
 	}
 
-	fmt.Println(c.Mongodb.Database)
-
 	db := client.Database(c.Mongodb.Database)
 
-	return &Data{db: db}, cleanup, nil
+	log.NewHelper(logger).Info("数据库连接成功")
+
+	return &MongoData{db: db}, cleanup, nil
 }

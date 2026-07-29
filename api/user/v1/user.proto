@@ -22,6 +22,14 @@ service Greeter {
       body : "*"
     };
   }
+
+  // 注册
+  rpc SendCode(SendCodeParams) returns (SendCodeResult) {
+    option (google.api.http) = {
+      post : "/sendCode",
+      body : "*"
+    };
+  }
 }
 
 message LoginParams {
@@ -32,8 +40,14 @@ message LoginParams {
 message RegisterParams {
   string account = 1;
   string password = 2;
+  string email = 3;
+  string code = 4;
 }
 
 message LoginResult { string token = 1; }
 
 message RegisterResult {}
+
+message SendCodeParams { string email = 1; }
+
+message SendCodeResult { string code = 1; }

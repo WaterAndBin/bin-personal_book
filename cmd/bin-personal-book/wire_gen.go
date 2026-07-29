@@ -24,18 +24,21 @@ import (
 
 // wireApp init kratos application.
 func wireApp(bootstrap *conf.Bootstrap, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewMonodb(confData, logger)
+	mongoData, cleanup, err := data.NewMonodbClient(confData, logger)
 	if err != nil {
 		return nil, nil, err
 	}
-	userZip := data.NewUserData(dataData, logger)
-	userUsecase := biz.NewUserUseBiz(confData, userZip, logger)
+	userZip := data.NewUserData(mongoData, logger)
+	client := data.NewRedisClient(bootstrap, logger)
+	redisZip := data.NewRedisData(client, logger)
+	redisUsecase := biz.NewRedisUseBiz(confData, redisZip, logger)
+	userUsecase := biz.NewUserUseBiz(confData, userZip, logger, redisUsecase)
 	userService := service.NewUserService(userUsecase)
-	tagsZip := data.NewTagsData(dataData, logger)
+	tagsZip := data.NewTagsData(mongoData, logger)
 	tagsUsecase := biz.NewTagsUseBiz(confData, tagsZip, logger)
 	tagsService := service.NewTagsService(tagsUsecase)
 	grpcServer := server.NewGRPCServer(bootstrap, userService, tagsService, logger)
-	uploadZip := data.NewUploadData(confData, dataData, logger)
+	uploadZip := data.NewUploadData(confData, mongoData, logger)
 	uploadUsecase := biz.NewUploadBiz(confData, uploadZip, logger)
 	uploadService := service.NewUploadService(uploadUsecase)
 	httpServer := server.NewHTTPServer(bootstrap, userService, tagsService, uploadService, logger)

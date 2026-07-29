@@ -26,3 +26,7 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginParams) (*pb.Login
 func (s *UserService) Register(ctx context.Context, req *pb.RegisterParams) (*pb.RegisterResult, error) {
 	return s.user.Register(ctx, req)
 }
+
+func (s *UserService) SendCode(ctx context.Context, req *pb.SendCodeParams) (*pb.SendCodeResult, error) {
+	return s.user.SendCode(ctx, req)
+}

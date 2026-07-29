@@ -26,6 +26,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 	var whiteList = map[string]struct{}{
 		"/api.user.v1.Greeter/Login":    {},
 		"/api.user.v1.Greeter/Register": {},
+		"/api.user.v1.Greeter/SendCode": {},
 	}
 
 	return func(ctx context.Context, operation string) bool {

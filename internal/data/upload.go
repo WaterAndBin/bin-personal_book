@@ -13,14 +13,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type uploadData struct {
+type UploadData struct {
 	confData *conf.Data
-	data     *Data
+	data     *MongoData
 	log      *log.Helper
 }
 
-func NewUploadData(confData *conf.Data, data *Data, logger log.Logger) biz.UploadZip {
-	return &uploadData{
+func NewUploadData(confData *conf.Data, data *MongoData, logger log.Logger) biz.UploadZip {
+	return &UploadData{
 		confData: confData,
 		data:     data,
 		log:      log.NewHelper(logger),
@@ -28,7 +28,7 @@ func NewUploadData(confData *conf.Data, data *Data, logger log.Logger) biz.Uploa
 }
 
 // 保存到本地
-func (up *uploadData) SaveFile(file multipart.File, header *multipart.FileHeader, name string) (*string, error) {
+func (up *UploadData) SaveFile(file multipart.File, header *multipart.FileHeader, name string) (*string, error) {
 	dir := filepath.Join(up.confData.Upload.Path, name)
 
 	// 创建文件夹
