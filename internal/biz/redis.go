@@ -43,3 +43,14 @@ func (uc *RedisUsecase) Get(ctx context.Context, key string) (string, error) {
 		key,
 	)
 }
+
+func (r *RedisUsecase) Incr(
+	ctx context.Context,
+	key string,
+) (int64, error) {
+
+	return r.redisClient.Incr(
+		ctx,
+		key,
+	).Result()
+}

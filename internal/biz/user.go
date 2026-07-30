@@ -4,10 +4,8 @@ import (
 	pb "bin-personal-book/api/user/v1"
 	"bin-personal-book/internal/conf"
 	"bin-personal-book/internal/model"
-	"bin-personal-book/internal/pkg/email"
 	"bin-personal-book/internal/utils"
 	"context"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -98,13 +96,17 @@ func (uc *UserUsecase) SendCode(ctx context.Context, params *pb.SendCodeParams) 
 		return nil, errors.BadRequest("error", "生成验证码失败")
 	}
 
-	sendErr := email.SendCode(params.Email, code)
+	// sendErr := email.SendCode(params.Email, code)
 
-	if sendErr != nil {
-		return nil, errors.BadRequest("error", "发送验证码失败")
-	}
+	// if sendErr != nil {
+	// 	return nil, errors.BadRequest("error", "发送验证码失败")
+	// }
 
-	uc.redis.Set(ctx, "13123", "123123", 5*time.Minute)
+	// setErr := uc.redis.Set(ctx, "13123", "123123", 5*time.Minute)
+
+	// if setErr != nil {
+	// 	return nil, errors.BadRequest("error", setErr.Error())
+	// }
 
 	return &pb.SendCodeResult{
 		Code: code,

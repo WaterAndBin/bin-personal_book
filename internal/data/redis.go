@@ -24,7 +24,9 @@ func NewRedisData(redis *redis.Client, logger log.Logger) biz.RedisZip {
 
 func NewRedisClient(c *conf.Bootstrap, logger log.Logger) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
-		Addr: c.Data.Redis.Addr,
+		Addr:         c.Data.Redis.Addr,
+		ReadTimeout:  c.Data.Redis.ReadTimeout.AsDuration(),
+		WriteTimeout: c.Data.Redis.WriteTimeout.AsDuration(),
 	})
 
 	// 测试连接
@@ -62,4 +64,12 @@ func (r *RedisData) Delete(ctx context.Context, key string) error {
 		ctx,
 		key,
 	).Err()
+}
+
+// key 中储存的数字值
+func (r *RedisData) Incr(ctx context.Context, key string) (int64, error) {
+	return r.redisClient.Incr(
+		ctx,
+		key,
+	).Result()
 }
