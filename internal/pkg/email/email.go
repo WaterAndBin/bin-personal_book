@@ -38,7 +38,7 @@ func SendCode(to string, code string) error {
 		"smtp.163.com",
 		465,
 		"waterandbin@163.com",
-		"",
+		"JUbaWfCrqyX7nFXV",
 	)
 
 	// 连接 SMTP服务器，并发送邮件

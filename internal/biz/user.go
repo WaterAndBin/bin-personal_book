@@ -4,8 +4,10 @@ import (
 	pb "bin-personal-book/api/user/v1"
 	"bin-personal-book/internal/conf"
 	"bin-personal-book/internal/model"
+	"bin-personal-book/internal/pkg/email"
 	"bin-personal-book/internal/utils"
 	"context"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -84,29 +86,80 @@ func (uc *UserUsecase) Register(ctx context.Context, params *pb.RegisterParams) 
 		return nil, errors.BadRequest("error", "该用户已注册")
 	}
 
+	codeKey := "email:code:" + params.Email
+
+	// 获取redis缓存的邮箱信息
+	code, codeErr := uc.redis.Get(ctx, codeKey)
+	if codeErr != nil {
+		return nil, errors.BadRequest("error", "注册失败")
+	}
+	if code != params.Code {
+		return nil, errors.BadRequest("error", "验证码错误，请重新获取验证码")
+	}
+
 	_, InsertErr := uc.repo.InsertUserAccount(ctx, params)
 
 	return &pb.RegisterResult{}, InsertErr
 }
 
 func (uc *UserUsecase) SendCode(ctx context.Context, params *pb.SendCodeParams) (*pb.SendCodeResult, error) {
+	if params.Email == "" {
+		return nil, errors.BadRequest("error", "缺少邮箱")
+	}
+
+	codeKey := "email:code:" + params.Email
+
+	lockKey := "email:code:lock:" + params.Email
+
+	// 检查一遍看是否有无之前发送的邮箱
+	exist, existErr := uc.redis.Exists(
+		ctx,
+		lockKey,
+	)
+	if existErr != nil {
+		return nil, errors.InternalServer(
+			"redis_error",
+			existErr.Error(),
+		)
+	}
+	if exist {
+		return nil, errors.BadRequest(
+			"too_fast",
+			"验证码已发送，请一分钟后再试",
+		)
+	}
+
 	code, err := utils.GenerateCode()
 
 	if err != nil {
 		return nil, errors.BadRequest("error", "生成验证码失败")
 	}
 
-	// sendErr := email.SendCode(params.Email, code)
+	sendErr := email.SendCode(params.Email, code)
 
-	// if sendErr != nil {
-	// 	return nil, errors.BadRequest("error", "发送验证码失败")
-	// }
+	if sendErr != nil {
+		return nil, errors.BadRequest("error", "发送验证码失败")
+	}
 
-	// setErr := uc.redis.Set(ctx, "13123", "123123", 5*time.Minute)
+	setErr := uc.redis.Set(ctx, codeKey, "123123", 5*time.Minute)
 
-	// if setErr != nil {
-	// 	return nil, errors.BadRequest("error", setErr.Error())
-	// }
+	if setErr != nil {
+		return nil, errors.BadRequest("error", setErr.Error())
+	}
+
+	// 设置60秒锁
+	err = uc.redis.Set(
+		ctx,
+		lockKey,
+		"1",
+		1*time.Minute,
+	)
+	if err != nil {
+		return nil, errors.InternalServer(
+			"redis_error",
+			err.Error(),
+		)
+	}
 
 	return &pb.SendCodeResult{
 		Code: code,

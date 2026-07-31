@@ -11,6 +11,7 @@ import (
 type RedisZip interface {
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 	Get(ctx context.Context, key string) (string, error)
+	Exists(ctx context.Context, key string) (bool, error)
 }
 
 type RedisUsecase struct {
@@ -44,13 +45,9 @@ func (uc *RedisUsecase) Get(ctx context.Context, key string) (string, error) {
 	)
 }
 
-func (r *RedisUsecase) Incr(
-	ctx context.Context,
-	key string,
-) (int64, error) {
-
-	return r.redisClient.Incr(
+func (uc *RedisUsecase) Exists(ctx context.Context, key string) (bool, error) {
+	return uc.repo.Exists(
 		ctx,
 		key,
-	).Result()
+	)
 }

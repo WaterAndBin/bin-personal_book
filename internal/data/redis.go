@@ -66,10 +66,16 @@ func (r *RedisData) Delete(ctx context.Context, key string) error {
 	).Err()
 }
 
-// key 中储存的数字值
-func (r *RedisData) Incr(ctx context.Context, key string) (int64, error) {
-	return r.redisClient.Incr(
+// 判断 key 是否存在
+func (r *RedisData) Exists(ctx context.Context, key string) (bool, error) {
+	result, err := r.redisClient.Exists(
 		ctx,
 		key,
 	).Result()
+
+	if err != nil {
+		return false, err
+	}
+
+	return result > 0, nil
 }
